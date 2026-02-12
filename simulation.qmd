@@ -4,23 +4,50 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+# =============================================
+# Water & Plant Growth: Simple Linear Simulation
+# =============================================
+# Research question: Does water availability affect plant growth?
+# We KNOW the answer because we're simulating the data!
+
+library(tidyverse)
+
+set.seed(2024)
+
+# Define the truth
+n_plants <- 40             # number of plants
+true_intercept <- 5        # baseline growth (cm) with no water
+true_slope <- 2.5          # for every 1 unit increase in water, growth increases by 2.5 cm
+noise_sd <- 3              # how much natural variation there is
+
+# Simulate predictor: water availability (liters per week)
+water <- runif(n_plants, min = 0, max = 10)
+
+# Simulate response: plant growth (cm)
+growth <- true_intercept + true_slope * water + rnorm(n_plants, mean = 0, sd = noise_sd)
+
+# Put it in a data frame
+plant_data <- data.frame(
+  water = water,
+  growth = growth
+)
+
+# Take a look
+head(plant_data)
+summary(plant_data)
+
+# Visualize
+ggplot(plant_data, aes(x = water, y = growth)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(
+    title = "Simulated: Water Availability vs. Plant Growth",
+    subtitle = paste("True relationship: growth =", true_intercept, "+", true_slope, "× water + noise"),
+    x = "Water Availability (L/week)",
+    y = "Plant Growth (cm)"
+  ) +
+  theme_minimal(base_size = 14)
+
+linearmod1 <- lm(growth~water, plant_data)
+summary(linearmod1)
 ```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
